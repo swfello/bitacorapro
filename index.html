@@ -1,0 +1,3129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bitácora PRO">
+<link rel="manifest" href="./manifest.json">
+<title>🎣 Bitácora PRO — Amigos por la Pesca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Exo+2:ital,wght@0,300;0,600;0,900;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #040810;
+  --bg-dark: #0a0e1a;
+  --bg-card: #0d1425;
+  --bg-glass: rgba(13,20,37,0.85);
+  --gold: #c9a227;
+  --gold-light: #f0c040;
+  --gold-glow: rgba(201,162,39,0.35);
+  --blue-deep: #0a2440;
+  --blue-mid: #0e3d6e;
+  --blue-bright: #1a6bb5;
+  --blue-glow: rgba(26,107,181,0.4);
+  --cyan: #00d4ff;
+  --cyan-glow: rgba(0,212,255,0.3);
+  --white: #f0f4ff;
+  --white-dim: rgba(240,244,255,0.7);
+  --white-muted: rgba(240,244,255,0.3);
+  --red: #e53935;
+  --green: #00c853;
+  --border-gold: rgba(201,162,39,0.4);
+  --border-blue: rgba(26,107,181,0.3);
+  --shadow-gold: 0 0 20px rgba(201,162,39,0.3);
+  --shadow-blue: 0 0 20px rgba(26,107,181,0.4);
+  --shadow-deep: 0 8px 32px rgba(0,0,0,0.7);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-display: 'Orbitron', monospace;
+  --font-ui: 'Rajdhani', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--white);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ===== BACKGROUND ===== */
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===== APP SHELL ===== */
+#app {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  transform: translateX(30px);
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+}
+.screen.slide-left { transform: translateX(-30px); }
+
+/* ===== SPLASH ===== */
+#screen-splash {
+  background: radial-gradient(ellipse at center, #0a2240 0%, #040810 70%);
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  animation: splashIn 0.8s ease forwards;
+}
+@keyframes splashIn {
+  from { opacity: 0; transform: scale(0.85) translateY(30px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.splash-logo-ring {
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 40px var(--gold-glow), inset 0 0 40px rgba(10,36,64,0.8);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  animation: ringPulse 2s ease-in-out infinite;
+}
+@keyframes ringPulse {
+  0%,100% { box-shadow: 0 0 30px var(--gold-glow), inset 0 0 30px rgba(10,36,64,0.8); }
+  50% { box-shadow: 0 0 60px var(--gold-glow), 0 0 100px rgba(201,162,39,0.15), inset 0 0 40px rgba(10,36,64,0.8); }
+}
+.splash-logo-ring::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,162,39,0.2);
+  animation: spinRing 8s linear infinite;
+}
+@keyframes spinRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.splash-logo-emoji { font-size: 72px; filter: drop-shadow(0 0 20px var(--gold-glow)); }
+.splash-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--gold-light);
+  text-shadow: 0 0 30px var(--gold-glow);
+  letter-spacing: 2px;
+  text-align: center;
+}
+.splash-sub {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--white-muted);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.splash-loader {
+  width: 200px; height: 3px;
+  background: rgba(201,162,39,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.splash-loader-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--cyan));
+  border-radius: 2px;
+  animation: loadBar 2.5s ease forwards;
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+@keyframes loadBar {
+  0% { width: 0%; }
+  60% { width: 80%; }
+  100% { width: 100%; }
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  background: linear-gradient(180deg, rgba(4,8,16,0.98) 0%, rgba(4,8,16,0.85) 100%);
+  border-bottom: 1px solid var(--border-gold);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.header-logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+  border-radius: 10px;
+  border: 1px solid var(--border-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--shadow-gold);
+}
+.header-title-wrap {}
+.header-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+.header-sub {
+  font-size: 10px;
+  color: var(--white-muted);
+  letter-spacing: 2px;
+}
+.header-actions { display: flex; gap: 8px; }
+.header-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--white-dim);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.header-btn:active { transform: scale(0.92); background: rgba(201,162,39,0.15); }
+
+/* ===== BOTTOM NAV ===== */
+#bottom-nav {
+  display: flex;
+  background: rgba(4,8,16,0.97);
+  border-top: 1px solid var(--border-gold);
+  backdrop-filter: blur(20px);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  border: none;
+  background: none;
+  color: var(--white-muted);
+}
+.nav-item.active { color: var(--gold-light); }
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 15%; right: 15%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  border-radius: 1px;
+}
+.nav-icon { font-size: 22px; line-height: 1; margin-bottom: 3px; }
+.nav-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-family: var(--font-ui); font-weight: 600; }
+.nav-item:active { transform: scale(0.9); }
+
+/* ===== SCROLL CONTENT ===== */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  padding: 16px 14px 20px;
+}
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* ===== SECTION TITLE ===== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::before {
+  content: '';
+  width: 3px; height: 18px;
+  background: linear-gradient(180deg, var(--gold-light), var(--cyan));
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-deep);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+.card:active { transform: scale(0.985); }
+
+.card-gold {
+  border-color: var(--border-gold);
+  background: linear-gradient(135deg, rgba(13,20,37,1), rgba(10,36,64,0.5));
+}
+
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ===== HERO STAT ===== */
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-hero {
+  background: linear-gradient(135deg, var(--blue-deep), rgba(10,36,64,0.5));
+  border: 1px solid var(--border-blue);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; right: -10px;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle, var(--blue-glow), transparent);
+  pointer-events: none;
+}
+.stat-hero.gold-stat {
+  background: linear-gradient(135deg, rgba(201,162,39,0.12), rgba(13,20,37,1));
+  border-color: var(--border-gold);
+}
+.stat-hero.gold-stat::after {
+  background: radial-gradient(circle, var(--gold-glow), transparent);
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+  text-shadow: 0 0 20px var(--blue-glow);
+}
+.gold-stat .stat-num { color: var(--gold-light); text-shadow: var(--shadow-gold); }
+.stat-label {
+  font-size: 11px;
+  color: var(--white-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.stat-icon { font-size: 20px; margin-bottom: 6px; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+}
+.btn:active::after { background: rgba(255,255,255,0.1); }
+.btn:active { transform: scale(0.96); }
+
+.btn-gold {
+  background: linear-gradient(135deg, #c9a227, #e8b830, #c9a227);
+  color: #0a0e1a;
+  box-shadow: 0 4px 20px rgba(201,162,39,0.5);
+}
+.btn-blue {
+  background: linear-gradient(135deg, var(--blue-mid), var(--blue-bright));
+  color: var(--white);
+  box-shadow: 0 4px 20px rgba(26,107,181,0.4);
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-gold);
+  color: var(--gold-light);
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--white-dim);
+}
+.btn-danger {
+  background: linear-gradient(135deg, #b71c1c, #e53935);
+  color: white;
+  box-shadow: 0 4px 20px rgba(229,57,53,0.4);
+}
+.btn-full { width: 100%; }
+.btn-sm { padding: 10px 16px; font-size: 12px; }
+.btn-icon { padding: 12px; border-radius: var(--radius-sm); }
+
+/* ===== FAB ===== */
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 18px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #e8b830);
+  border: none;
+  color: #0a0e1a;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(201,162,39,0.6), 0 2px 8px rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 50;
+  transition: all 0.25s;
+  animation: fabPulse 3s ease-in-out infinite;
+}
+@keyframes fabPulse {
+  0%,100% { box-shadow: 0 6px 24px rgba(201,162,39,0.6); }
+  50% { box-shadow: 0 6px 36px rgba(201,162,39,0.8), 0 0 60px rgba(201,162,39,0.3); }
+}
+.fab:active { transform: scale(0.9) rotate(-10deg); }
+
+/* ===== INPUTS ===== */
+.input-group { margin-bottom: 14px; }
+.input-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white-muted);
+  margin-bottom: 6px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+.input-field, .select-field, .textarea-field {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  -webkit-appearance: none;
+}
+.input-field:focus, .select-field:focus, .textarea-field:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold-glow);
+}
+.select-field option { background: var(--bg-dark); }
+.textarea-field { resize: none; min-height: 80px; }
+
+/* ===== PHOTO PICKER ===== */
+.photo-pick-area {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border: 2px dashed var(--border-gold);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(201,162,39,0.04);
+  transition: all 0.2s;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 14px;
+}
+.photo-pick-area:active { border-color: var(--gold-light); background: rgba(201,162,39,0.08); }
+.photo-pick-area img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  position: absolute; inset: 0;
+}
+.photo-pick-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  z-index: 1;
+}
+.photo-pick-icon { font-size: 36px; opacity: 0.6; }
+.photo-pick-text { font-size: 12px; color: var(--white-muted); letter-spacing: 1px; }
+
+/* ===== CAPTURE CARD ===== */
+.capture-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-deep);
+  transition: transform 0.2s;
+}
+.capture-card:active { transform: scale(0.98); }
+.capture-img-wrap {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--blue-deep);
+  position: relative;
+  overflow: hidden;
+}
+.capture-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.capture-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px;
+  opacity: 0.3;
+}
+.capture-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-gold);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+.capture-best-badge {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: linear-gradient(135deg, var(--gold), #e8b830);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0a0e1a;
+  display: none;
+}
+.capture-body { padding: 14px; }
+.capture-species {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.capture-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.capture-tag {
+  background: rgba(26,107,181,0.2);
+  border: 1px solid var(--border-blue);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--cyan);
+  font-family: var(--font-ui);
+}
+.capture-comment {
+  font-size: 13px;
+  color: var(--white-dim);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+.capture-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.capture-time { font-size: 11px; color: var(--white-muted); }
+.capture-actions { display: flex; gap: 8px; }
+
+/* ===== JORNADA CARD ===== */
+.jornada-card {
+  background: linear-gradient(135deg, var(--bg-card), rgba(10,36,64,0.5));
+  border: 1px solid var(--border-blue);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.jornada-card:active { transform: scale(0.98); }
+.jornada-card.active-jornada {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(201,162,39,0.1), rgba(13,20,37,1));
+}
+.jornada-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+  border: 1px solid var(--border-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.active-jornada .jornada-icon {
+  background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.05));
+}
+.jornada-info { flex: 1; min-width: 0; }
+.jornada-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.active-jornada .jornada-name { color: var(--gold-light); }
+.jornada-meta { font-size: 12px; color: var(--white-muted); }
+.jornada-badge {
+  background: linear-gradient(135deg, var(--gold), #e8b830);
+  color: #0a0e1a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* ===== RANKING ===== */
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.rank-pos {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.rank-1 { background: linear-gradient(135deg, #c9a227, #f0c040); color: #0a0e1a; box-shadow: 0 0 15px var(--gold-glow); }
+.rank-2 { background: linear-gradient(135deg, #757575, #bdbdbd); color: #0a0e1a; }
+.rank-3 { background: linear-gradient(135deg, #bf6830, #e07840); color: white; }
+.rank-other { background: rgba(255,255,255,0.1); color: var(--white-dim); }
+.rank-info { flex: 1; min-width: 0; }
+.rank-name { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.rank-detail { font-size: 12px; color: var(--white-muted); }
+.rank-weight {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  width: 100%;
+  max-height: 92vh;
+  background: var(--bg-dark);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--border-gold);
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+}
+.modal-close {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: var(--white-dim);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-body::-webkit-scrollbar { display: none; }
+.modal-footer {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+
+/* ===== PROFILE ===== */
+.profile-hero {
+  text-align: center;
+  padding: 20px 0 10px;
+  margin-bottom: 16px;
+}
+.profile-avatar-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+.profile-avatar {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  object-fit: cover;
+  box-shadow: var(--shadow-gold);
+  background: var(--blue-deep);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 42px;
+  overflow: hidden;
+}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-avatar-edit {
+  position: absolute;
+  bottom: 2px; right: 2px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #0a0e1a;
+  border: 2px solid var(--bg-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+}
+.profile-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.profile-alias {
+  font-size: 13px;
+  color: var(--gold-light);
+  letter-spacing: 2px;
+}
+
+/* ===== POSTER CANVAS ===== */
+#poster-canvas {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-gold);
+  box-shadow: var(--shadow-gold);
+  display: block;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ===== TORNEO ANIMATIONS ===== */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes glow {
+  0%,100% { text-shadow: 0 0 10px var(--gold-glow); }
+  50% { text-shadow: 0 0 30px var(--gold-glow), 0 0 60px rgba(201,162,39,0.2); }
+}
+.anim-float { animation: float 3s ease-in-out infinite; }
+.anim-glow { animation: glow 2.5s ease-in-out infinite; }
+
+/* ===== MEDALS ===== */
+.medal { font-size: 28px; filter: drop-shadow(0 0 8px var(--gold-glow)); animation: float 3s ease-in-out infinite; }
+
+/* ===== WEATHER CHIPS ===== */
+.weather-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.weather-chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-blue);
+  background: rgba(26,107,181,0.1);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.weather-chip.selected {
+  border-color: var(--gold);
+  background: rgba(201,162,39,0.15);
+  color: var(--gold-light);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.empty-icon { font-size: 52px; opacity: 0.3; }
+.empty-title { font-size: 16px; font-weight: 700; color: var(--white-dim); }
+.empty-sub { font-size: 13px; color: var(--white-muted); }
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(13,20,37,0.95);
+  border: 1px solid var(--border-gold);
+  border-radius: 30px;
+  padding: 12px 22px;
+  font-size: 14px;
+  color: var(--gold-light);
+  z-index: 500;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+  white-space: nowrap;
+  max-width: 90vw;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar-wrap {
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue-bright), var(--cyan));
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  margin: 16px 0;
+}
+
+/* ===== CHIP TOGGLE ===== */
+.chip-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-ui);
+}
+.chip.active {
+  border-color: var(--gold);
+  background: rgba(201,162,39,0.15);
+  color: var(--gold-light);
+}
+
+/* ===== SPINNER ===== */
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(201,162,39,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 20px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== GLOW TEXT ===== */
+.glow-gold {
+  color: var(--gold-light);
+  text-shadow: 0 0 20px var(--gold-glow);
+}
+.glow-cyan {
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan-glow);
+}
+
+/* ===== SWITCH ===== */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.switch-label { font-size: 14px; color: var(--white-dim); }
+.switch {
+  width: 44px; height: 24px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+.switch.on { background: var(--gold); }
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.25s;
+}
+.switch.on::after { left: 23px; }
+
+/* ===== ONLINE INDICATOR ===== */
+.online-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  display: inline-block;
+  box-shadow: 0 0 6px var(--green);
+}
+.offline-dot { background: #ff6b35; box-shadow: 0 0 6px #ff6b35; }
+
+/* Otro señuelo custom input */
+.senuelo-custom-wrap {
+  margin-top: 8px;
+  display: none;
+}
+.senuelo-custom-wrap.visible { display: block; }
+.senuelo-custom-wrap .input-field {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold-glow);
+}
+
+/* ===== UTILITY ===== */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.text-gold { color: var(--gold-light); }
+.text-muted { color: var(--white-muted); }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 11px; }
+.font-display { font-family: var(--font-display); }
+.fw-700 { font-weight: 700; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.mt-8 { margin-top: 8px; }
+.p-12 { padding: 12px; }
+.w-full { width: 100%; }
+.hidden { display: none !important; }
+input[type="file"] { display: none; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 360px) {
+  .hero-stats { grid-template-columns: 1fr 1fr; }
+  .stat-num { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<canvas id="bg-canvas"></canvas>
+
+<div id="app">
+
+<!-- ===== SPLASH SCREEN ===== -->
+<div class="screen active" id="screen-splash">
+  <div class="splash-inner">
+    <div class="splash-logo-ring">
+      <div class="splash-logo-emoji">🎣</div>
+    </div>
+    <div>
+      <div class="splash-title">BITÁCORA PRO</div>
+      <div class="splash-sub">Amigos por la Pesca</div>
+    </div>
+    <div class="splash-loader">
+      <div class="splash-loader-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOME SCREEN ===== -->
+<div class="screen" id="screen-home">
+  <div class="app-header">
+    <div class="header-logo">
+      <div class="header-logo-icon">🎣</div>
+      <div class="header-title-wrap">
+        <div class="header-title">BITÁCORA PRO</div>
+        <div class="header-sub">AMIGOS POR LA PESCA</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="online-status" class="header-btn" style="font-size:10px;gap:4px;">
+        <span class="online-dot" id="online-dot"></span>
+      </div>
+      <button class="header-btn" onclick="openModal('modal-notifications')">🔔</button>
+    </div>
+  </div>
+  <div class="scroll-content" id="home-content">
+    <!-- Dynamic content -->
+  </div>
+  <button class="fab" id="fab-captura" onclick="navTo('screen-nueva-captura')" title="Nueva Captura">+</button>
+</div>
+
+<!-- ===== JORNADAS SCREEN ===== -->
+<div class="screen" id="screen-jornadas">
+  <div class="app-header">
+    <div class="header-logo">
+      <div class="header-logo-icon">📋</div>
+      <div class="header-title-wrap">
+        <div class="header-title">JORNADAS</div>
+        <div class="header-sub">HISTORIAL Y GESTIÓN</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="openModal('modal-nueva-jornada')">➕</button>
+    </div>
+  </div>
+  <div class="scroll-content" id="jornadas-content"></div>
+</div>
+
+<!-- ===== CAPTURAS SCREEN ===== -->
+<div class="screen" id="screen-capturas">
+  <div class="app-header">
+    <div class="header-logo">
+      <div class="header-logo-icon">🐟</div>
+      <div class="header-title-wrap">
+        <div class="header-title">CAPTURAS</div>
+        <div class="header-sub" id="cap-header-sub">TODAS LAS CAPTURAS</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="navTo('screen-nueva-captura')">📸</button>
+    </div>
+  </div>
+  <div class="scroll-content" id="capturas-content"></div>
+</div>
+
+<!-- ===== TORNEO SCREEN ===== -->
+<div class="screen" id="screen-torneo">
+  <div class="app-header">
+    <div class="header-logo">
+      <div class="header-logo-icon">🏆</div>
+      <div class="header-title-wrap">
+        <div class="header-title">MODO TORNEO</div>
+        <div class="header-sub">RANKING & ESTADÍSTICAS</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="openModal('modal-poster')">🎨</button>
+    </div>
+  </div>
+  <div class="scroll-content" id="torneo-content"></div>
+</div>
+
+<!-- ===== PERFIL SCREEN ===== -->
+<div class="screen" id="screen-perfil">
+  <div class="app-header">
+    <div class="header-logo">
+      <div class="header-logo-icon">👤</div>
+      <div class="header-title-wrap">
+        <div class="header-title">MI PERFIL</div>
+        <div class="header-sub">PESCADOR DEPORTIVO</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="btn-save-perfil" onclick="savePerfil()">💾</button>
+    </div>
+  </div>
+  <div class="scroll-content" id="perfil-content"></div>
+</div>
+
+<!-- ===== NUEVA CAPTURA SCREEN ===== -->
+<div class="screen" id="screen-nueva-captura">
+  <div class="app-header">
+    <div class="header-logo">
+      <button class="header-btn" onclick="navBack()" style="margin-right:6px">←</button>
+      <div class="header-title-wrap">
+        <div class="header-title">NUEVA CAPTURA</div>
+        <div class="header-sub">REGISTRAR PESCA</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="saveCaptura()">✅</button>
+    </div>
+  </div>
+  <div class="scroll-content" id="nueva-captura-content"></div>
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav id="bottom-nav">
+  <button class="nav-item active" data-screen="screen-home" onclick="navTo('screen-home',this)">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Inicio</div>
+  </button>
+  <button class="nav-item" data-screen="screen-jornadas" onclick="navTo('screen-jornadas',this)">
+    <div class="nav-icon">📋</div>
+    <div class="nav-label">Jornadas</div>
+  </button>
+  <button class="nav-item" data-screen="screen-capturas" onclick="navTo('screen-capturas',this)">
+    <div class="nav-icon">🐟</div>
+    <div class="nav-label">Capturas</div>
+  </button>
+  <button class="nav-item" data-screen="screen-torneo" onclick="navTo('screen-torneo',this)">
+    <div class="nav-icon">🏆</div>
+    <div class="nav-label">Torneo</div>
+  </button>
+  <button class="nav-item" data-screen="screen-perfil" onclick="navTo('screen-perfil',this)">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Perfil</div>
+  </button>
+</nav>
+
+</div><!-- /app -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- Modal Nueva Jornada -->
+<div class="modal-overlay" id="modal-nueva-jornada">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🌊 NUEVA JORNADA</div>
+      <button class="modal-close" onclick="closeModal('modal-nueva-jornada')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label class="input-label">Nombre de la jornada</label>
+        <input class="input-field" id="j-nombre" placeholder="Ej: Torneo Lago Chapala 2025">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Presa / Lugar</label>
+        <input class="input-field" id="j-lugar" placeholder="Nombre del cuerpo de agua">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Fecha</label>
+        <input class="input-field" id="j-fecha" type="date">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Clima</label>
+        <div class="weather-chips" id="weather-chips">
+          <div class="weather-chip" data-v="☀️ Soleado" onclick="selectWeather(this)">☀️ Soleado</div>
+          <div class="weather-chip" data-v="⛅ Nublado" onclick="selectWeather(this)">⛅ Nublado</div>
+          <div class="weather-chip" data-v="🌧️ Lluvioso" onclick="selectWeather(this)">🌧️ Lluvioso</div>
+          <div class="weather-chip" data-v="💨 Ventoso" onclick="selectWeather(this)">💨 Ventoso</div>
+          <div class="weather-chip" data-v="🌪️ Tormentoso" onclick="selectWeather(this)">🌪️ Tormentoso</div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Observaciones</label>
+        <textarea class="textarea-field" id="j-obs" placeholder="Notas generales..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-nueva-jornada')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:2" onclick="crearJornada()">🌊 Crear Jornada</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Poster -->
+<div class="modal-overlay" id="modal-poster">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🎨 POSTER TORNEO</div>
+      <button class="modal-close" onclick="closeModal('modal-poster')">✕</button>
+    </div>
+    <div class="modal-body">
+      <canvas id="poster-canvas" width="540" height="960"></canvas>
+      <div style="margin-top:14px;display:flex;gap:10px;">
+        <button class="btn btn-gold" style="flex:1" onclick="downloadPoster()">⬇️ Descargar</button>
+        <button class="btn btn-blue" style="flex:1" onclick="sharePoster()">📤 Compartir</button>
+      </div>
+      <button class="btn btn-outline btn-full" style="margin-top:10px" onclick="shareWhatsApp()">💬 WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Captura Detail -->
+<div class="modal-overlay" id="modal-captura-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🐟 DETALLE CAPTURA</div>
+      <button class="modal-close" onclick="closeModal('modal-captura-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-captura-detail-body"></div>
+    <div class="modal-footer" id="modal-captura-detail-footer"></div>
+  </div>
+</div>
+
+<!-- Modal Editar Jornada -->
+<div class="modal-overlay" id="modal-editar-jornada">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">✏️ EDITAR JORNADA</div>
+      <button class="modal-close" onclick="closeModal('modal-editar-jornada')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label class="input-label">Nombre de la jornada</label>
+        <input class="input-field" id="ej-nombre" placeholder="Ej: Torneo Lago Chapala 2025">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Presa / Lugar</label>
+        <input class="input-field" id="ej-lugar" placeholder="Nombre del cuerpo de agua">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Fecha</label>
+        <input class="input-field" id="ej-fecha" type="date">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Clima</label>
+        <div class="weather-chips" id="ej-weather-chips">
+          <div class="weather-chip" data-v="☀️ Soleado" onclick="selectWeatherEdit(this)">☀️ Soleado</div>
+          <div class="weather-chip" data-v="⛅ Nublado" onclick="selectWeatherEdit(this)">⛅ Nublado</div>
+          <div class="weather-chip" data-v="🌧️ Lluvioso" onclick="selectWeatherEdit(this)">🌧️ Lluvioso</div>
+          <div class="weather-chip" data-v="💨 Ventoso" onclick="selectWeatherEdit(this)">💨 Ventoso</div>
+          <div class="weather-chip" data-v="🌪️ Tormentoso" onclick="selectWeatherEdit(this)">🌪️ Tormentoso</div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Observaciones</label>
+        <textarea class="textarea-field" id="ej-obs" placeholder="Notas generales..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-editar-jornada')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:2" onclick="guardarEdicionJornada()">💾 Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Captura -->
+<div class="modal-overlay" id="modal-editar-captura">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">✏️ EDITAR CAPTURA</div>
+      <button class="modal-close" onclick="closeModal('modal-editar-captura')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Photo -->
+      <div class="photo-pick-area" id="ec-photo-area" onclick="document.getElementById('file-edit-captura-photo').click()" style="aspect-ratio:16/9;margin-bottom:14px">
+        <div class="photo-pick-placeholder" id="ec-photo-placeholder">
+          <div class="photo-pick-icon">📸</div>
+          <div class="photo-pick-text">CAMBIAR FOTO</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="input-group">
+          <label class="input-label">⚖️ Peso (kg)</label>
+          <input class="input-field" id="ec-peso" type="number" step="0.01" placeholder="0.00" inputmode="decimal">
+        </div>
+        <div class="input-group">
+          <label class="input-label">📏 Longitud (cm)</label>
+          <input class="input-field" id="ec-long" type="number" step="0.1" placeholder="0.0" inputmode="decimal">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">🐟 Especie</label>
+        <select class="select-field" id="ec-especie">
+          <option value="Black Bass (Lobina Negra)" selected>Black Bass (Lobina Negra)</option>
+          <option>Trucha Arcoíris</option>
+          <option>Trucha Café</option>
+          <option>Trucha Brook</option>
+          <option>Carpa Común</option>
+          <option>Carpa Espejo</option>
+          <option>Bagre de Canal</option>
+          <option>Bagre Azul</option>
+          <option>Tilapia</option>
+          <option>Lobina Rayada</option>
+          <option>Lobina de Florida</option>
+          <option>Charal</option>
+          <option>Robalo</option>
+          <option>Mojarra</option>
+          <option>Dorado</option>
+          <option>Perca Amarilla</option>
+          <option>Walleye</option>
+          <option>Otra especie</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">🪝 Señuelo</label>
+        <select class="select-field" id="ec-senuelo" onchange="toggleCustomSenuelo(this,'ec-senuelo-custom')">
+          <option value="">Seleccionar señuelo...</option>
+          <optgroup label="── SOFT BAITS ──">
+            <option>Gusano de plástico (Worm)</option>
+            <option>Shad de plástico</option>
+            <option>Craw / Cangrejo plástico</option>
+            <option>Creature Bait</option>
+            <option>Tube Bait</option>
+            <option>Grub (Gusano con cola)</option>
+            <option>Swimbait suave</option>
+            <option>Ned Rig</option>
+            <option>Senko / Stick Bait</option>
+          </optgroup>
+          <optgroup label="── HARD BAITS ──">
+            <option>Crankbait (Superficial)</option>
+            <option>Crankbait (Medio)</option>
+            <option>Crankbait (Profundo)</option>
+            <option>Jerkbait</option>
+            <option>Swimbait rígido</option>
+            <option>Glide Bait</option>
+            <option>Lipless Crankbait</option>
+          </optgroup>
+          <optgroup label="── TOPWATER ──">
+            <option>Topwater Popper</option>
+            <option>Topwater Walker (Zara Spook)</option>
+            <option>Buzz Bait</option>
+            <option>Frog (Rana de plástico)</option>
+            <option>Prop Bait</option>
+          </optgroup>
+          <optgroup label="── JIGS ──">
+            <option>Football Jig</option>
+            <option>Flipping Jig</option>
+            <option>Swim Jig</option>
+            <option>Finesse Jig</option>
+            <option>Ned Jig / Mushroom Jig</option>
+            <option>Alabama Rig (Umbrella)</option>
+            <option>Jig de plomo genérico</option>
+          </optgroup>
+          <optgroup label="── SPINNERS ──">
+            <option>Spinnerbait</option>
+            <option>In-Line Spinner</option>
+            <option>Cuchara metálica</option>
+            <option>Blade Bait</option>
+          </optgroup>
+          <optgroup label="── MOSCA ──">
+            <option>Mosca seca (Dry Fly)</option>
+            <option>Ninfa (Nymph)</option>
+            <option>Streamer</option>
+            <option>Emerger</option>
+            <option>Woolly Bugger</option>
+          </optgroup>
+          <optgroup label="── NATURALES ──">
+            <option>Cebo vivo (pez)</option>
+            <option>Lombriz / Gusano natural</option>
+            <option>Camarón</option>
+            <option>Cangrejo natural</option>
+            <option>Rana natural</option>
+            <option>Insecto</option>
+          </optgroup>
+          <option value="__otro__">✏️ Otro — escribir nombre...</option>
+        </select>
+        <div class="senuelo-custom-wrap" id="ec-senuelo-custom">
+          <input class="input-field" id="ec-senuelo-texto" placeholder="Escribe el nombre del señuelo...">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">🎣 Técnica</label>
+        <div class="chip-toggle" id="ec-tecnica-chips">
+          ${['Casting','Spinning','Flyfishing','Jigging','Trolling','Baitcasting','Natural'].map(t =>
+            `<div class="chip" onclick="selectChipEdit(this)">${t}</div>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="input-group" style="margin-top:12px">
+        <label class="input-label">💬 Comentarios</label>
+        <textarea class="textarea-field" id="ec-comment" placeholder="Descripción de la captura..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-editar-captura')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:2" onclick="guardarEdicionCaptura()">💾 Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Notifications -->
+<div class="modal-overlay" id="modal-notifications">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🔔 NOTIFICACIONES</div>
+      <button class="modal-close" onclick="closeModal('modal-notifications')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="empty-state">
+        <div class="empty-icon">🔔</div>
+        <div class="empty-title">Sin notificaciones</div>
+        <div class="empty-sub">Las alertas de torneo aparecerán aquí</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Hidden Inputs -->
+<input type="file" id="file-captura-photo" accept="image/*" capture="environment">
+<input type="file" id="file-perfil-photo" accept="image/*" capture="user">
+<input type="file" id="file-edit-captura-photo" accept="image/*" capture="environment">
+
+<script>
+// ============================================================
+// BITÁCORA PRO — AMIGOS POR LA PESCA
+// Full PWA Application Engine
+// ============================================================
+
+'use strict';
+
+// ===== STATE =====
+const STATE = {
+  currentScreen: 'screen-splash',
+  prevScreen: 'screen-home',
+  jornadas: [],
+  capturas: [],
+  perfil: {},
+  jornadaActual: null,
+  selectedWeather: '',
+  capturaEditId: null,
+  nuevaCaptura: {
+    foto: null,
+    peso: '',
+    longitud: '',
+    especie: '',
+    senuelo: '',
+    tecnica: '',
+    comentarios: '',
+    lat: null,
+    lng: null
+  }
+};
+
+// ===== DB (localStorage wrapper) =====
+const DB = {
+  save(key, data) {
+    try { localStorage.setItem('bpro_' + key, JSON.stringify(data)); } catch(e) {}
+  },
+  load(key, def = null) {
+    try {
+      const v = localStorage.getItem('bpro_' + key);
+      return v ? JSON.parse(v) : def;
+    } catch(e) { return def; }
+  }
+};
+
+// ===== INIT =====
+function init() {
+  STATE.jornadas = DB.load('jornadas', []);
+  STATE.capturas = DB.load('capturas', []);
+  STATE.perfil = DB.load('perfil', { nombre: '', alias: '', club: '', estado: '', tipo: '', foto: null });
+  STATE.jornadaActual = DB.load('jornadaActual', null);
+
+  // Set today date for jornada form
+  const today = new Date().toISOString().split('T')[0];
+  const jFecha = document.getElementById('j-fecha');
+  if (jFecha) jFecha.value = today;
+
+  initBackground();
+  checkOnline();
+  window.addEventListener('online', checkOnline);
+  window.addEventListener('offline', checkOnline);
+
+  // Splash → Home
+  setTimeout(() => {
+    hideScreen('screen-splash');
+    showScreen('screen-home');
+    STATE.currentScreen = 'screen-home';
+    renderHome();
+    registerSW();
+  }, 2800);
+
+  // File inputs
+  document.getElementById('file-captura-photo').addEventListener('change', handleCapturaPhoto);
+  document.getElementById('file-perfil-photo').addEventListener('change', handlePerfilPhoto);
+  document.getElementById('file-edit-captura-photo').addEventListener('change', handleEditCapturaPhoto);
+}
+
+// ===== NAVIGATION =====
+function navTo(screenId, navBtn) {
+  if (STATE.currentScreen === screenId) return;
+
+  // Special screens without bottom nav
+  const noNav = ['screen-splash','screen-nueva-captura'];
+  document.getElementById('bottom-nav').style.display = noNav.includes(screenId) ? 'none' : 'flex';
+
+  const allNavBtns = document.querySelectorAll('.nav-item');
+  allNavBtns.forEach(b => b.classList.remove('active'));
+  if (navBtn) navBtn.classList.add('active');
+  else {
+    const match = document.querySelector(`.nav-item[data-screen="${screenId}"]`);
+    if (match) match.classList.add('active');
+  }
+
+  hideScreen(STATE.currentScreen);
+  STATE.prevScreen = STATE.currentScreen;
+  STATE.currentScreen = screenId;
+  showScreen(screenId);
+
+  // Render on demand
+  if (screenId === 'screen-home') renderHome();
+  else if (screenId === 'screen-jornadas') renderJornadas();
+  else if (screenId === 'screen-capturas') renderCapturas();
+  else if (screenId === 'screen-torneo') renderTorneo();
+  else if (screenId === 'screen-perfil') renderPerfil();
+  else if (screenId === 'screen-nueva-captura') renderNuevaCaptura();
+}
+
+function navBack() {
+  document.getElementById('bottom-nav').style.display = 'flex';
+  navTo(STATE.prevScreen);
+}
+
+function showScreen(id) {
+  const s = document.getElementById(id);
+  if (!s) return;
+  s.classList.remove('slide-left');
+  s.classList.add('active');
+}
+
+function hideScreen(id) {
+  const s = document.getElementById(id);
+  if (!s) return;
+  s.classList.remove('active');
+  s.classList.add('slide-left');
+}
+
+// ===== MODALS =====
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-poster') setTimeout(generatePoster, 300);
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
+});
+
+// ===== ONLINE CHECK =====
+function checkOnline() {
+  const dot = document.getElementById('online-dot');
+  if (dot) dot.className = navigator.onLine ? 'online-dot' : 'offline-dot';
+}
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ===== BACKGROUND CANVAS =====
+function initBackground() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], animId;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function Particle() {
+    this.reset();
+  }
+  Particle.prototype.reset = function() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.size = Math.random() * 2 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.4;
+    this.speedY = -Math.random() * 0.6 - 0.1;
+    this.opacity = Math.random() * 0.5 + 0.1;
+    this.color = Math.random() > 0.7 ? '#c9a227' : '#1a6bb5';
+  };
+  Particle.prototype.update = function() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.y < -5) this.reset();
+  };
+  Particle.prototype.draw = function() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Background gradient
+    const grad = ctx.createRadialGradient(W/2, H*0.3, 0, W/2, H*0.5, H*0.8);
+    grad.addColorStop(0, 'rgba(10,36,64,0.25)');
+    grad.addColorStop(1, 'rgba(4,8,16,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(26,107,181,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 60) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += 60) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    particles.forEach(p => { p.update(); p.draw(); });
+    animId = requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+// ===== HOME RENDER =====
+function renderHome() {
+  const totalCapturas = STATE.capturas.length;
+  const jornadaActiva = STATE.jornadas.find(j => j.id === STATE.jornadaActual);
+  const capturasJornada = jornadaActiva ? STATE.capturas.filter(c => c.jornadaId === jornadaActiva.id) : [];
+  const totalPeso = capturasJornada.reduce((s, c) => s + (parseFloat(c.peso) || 0), 0);
+  const mejorCaptura = capturasJornada.reduce((best, c) => (!best || (parseFloat(c.peso) || 0) > parseFloat(best.peso)) ? c : best, null);
+
+  const perfil = STATE.perfil;
+
+  document.getElementById('home-content').innerHTML = `
+    <!-- Greeting -->
+    <div class="card card-gold mb-16" style="margin-bottom:16px">
+      <div class="flex items-center gap-8">
+        <div style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--blue-deep),var(--blue-mid));border:1px solid var(--border-gold);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">
+          ${perfil.foto ? `<img src="${perfil.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:13px;">` : '🎣'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--gold-light);">${perfil.nombre || 'Pescador PRO'}</div>
+          <div style="font-size:12px;color:var(--white-muted);">${perfil.alias ? '@' + perfil.alias : 'Configura tu perfil'} · ${perfil.club || 'Sin club'}</div>
+        </div>
+        <div style="font-size:28px;" class="anim-float">🏆</div>
+      </div>
+    </div>
+
+    <!-- Jornada Activa -->
+    ${jornadaActiva ? `
+    <div class="card" style="border-color:var(--gold);margin-bottom:16px;background:linear-gradient(135deg,rgba(201,162,39,0.08),rgba(13,20,37,1))">
+      <div class="flex items-center justify-between mb-8">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--gold-light);text-transform:uppercase;">● JORNADA ACTIVA</div>
+        <button class="btn btn-sm btn-outline" onclick="finalizarJornada()">Finalizar</button>
+      </div>
+      <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--white);margin-bottom:4px;">${jornadaActiva.nombre}</div>
+      <div style="font-size:12px;color:var(--white-muted);margin-bottom:12px;">📍 ${jornadaActiva.lugar} · ${jornadaActiva.clima}</div>
+      <div class="hero-stats" style="margin-bottom:0">
+        <div class="stat-hero gold-stat">
+          <div class="stat-icon">🐟</div>
+          <div class="stat-num">${capturasJornada.length}</div>
+          <div class="stat-label">Capturas</div>
+        </div>
+        <div class="stat-hero">
+          <div class="stat-icon">⚖️</div>
+          <div class="stat-num">${totalPeso.toFixed(1)}</div>
+          <div class="stat-label">kg Total</div>
+        </div>
+      </div>
+    </div>` : `
+    <div class="card" style="border-style:dashed;margin-bottom:16px;text-align:center;padding:20px;">
+      <div style="font-size:32px;margin-bottom:8px;">🌊</div>
+      <div style="font-size:14px;color:var(--white-dim);margin-bottom:12px;">Sin jornada activa</div>
+      <button class="btn btn-gold" onclick="openModal('modal-nueva-jornada')">+ Iniciar Jornada</button>
+    </div>`}
+
+    <!-- Stats globales -->
+    <div class="section-header">
+      <div class="section-title">Estadísticas</div>
+    </div>
+    <div class="hero-stats" style="margin-bottom:16px">
+      <div class="stat-hero">
+        <div class="stat-icon">📋</div>
+        <div class="stat-num">${STATE.jornadas.length}</div>
+        <div class="stat-label">Jornadas</div>
+      </div>
+      <div class="stat-hero gold-stat">
+        <div class="stat-icon">🐟</div>
+        <div class="stat-num">${totalCapturas}</div>
+        <div class="stat-label">Capturas</div>
+      </div>
+    </div>
+    <div class="hero-stats" style="margin-bottom:16px">
+      <div class="stat-hero">
+        <div class="stat-icon">⚖️</div>
+        <div class="stat-num">${calcMejorPeso()}</div>
+        <div class="stat-label">Récord kg</div>
+      </div>
+      <div class="stat-hero">
+        <div class="stat-icon">📏</div>
+        <div class="stat-num">${calcMejorLong()}</div>
+        <div class="stat-label">Récord cm</div>
+      </div>
+    </div>
+
+    <!-- Últimas capturas -->
+    <div class="section-header">
+      <div class="section-title">Últimas Capturas</div>
+      <button class="btn btn-sm btn-ghost" onclick="navTo('screen-capturas')">Ver todas →</button>
+    </div>
+    ${renderLastCapturas()}
+
+    <!-- Quick Actions -->
+    <div class="section-header" style="margin-top:8px">
+      <div class="section-title">Acciones Rápidas</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <button class="btn btn-blue" onclick="navTo('screen-nueva-captura')">📸 Captura Rápida</button>
+      <button class="btn btn-outline" onclick="openModal('modal-poster')">🎨 Generar Poster</button>
+      <button class="btn btn-ghost" onclick="navTo('screen-torneo')">🏆 Ver Torneo</button>
+      <button class="btn btn-ghost" onclick="exportData()">📤 Exportar</button>
+    </div>
+  `;
+}
+
+function calcMejorPeso() {
+  if (!STATE.capturas.length) return '0.0';
+  return Math.max(...STATE.capturas.map(c => parseFloat(c.peso) || 0)).toFixed(1);
+}
+function calcMejorLong() {
+  if (!STATE.capturas.length) return '0';
+  return Math.max(...STATE.capturas.map(c => parseFloat(c.longitud) || 0)).toFixed(0);
+}
+
+function renderLastCapturas() {
+  const last = [...STATE.capturas].reverse().slice(0, 3);
+  if (!last.length) return `<div class="empty-state" style="padding:24px 20px"><div class="empty-icon">🐟</div><div class="empty-title">Sin capturas</div><div class="empty-sub">Registra tu primera captura</div></div>`;
+  return last.map(c => miniCapturaCard(c)).join('');
+}
+
+function miniCapturaCard(c) {
+  return `
+  <div class="capture-card" onclick="showCapturaDetail('${c.id}')">
+    <div class="capture-img-wrap" style="aspect-ratio:16/7">
+      ${c.foto ? `<img src="${c.foto}" alt="">` : `<div class="capture-img-placeholder">🐟</div>`}
+      <div class="capture-badge">${parseFloat(c.peso).toFixed(2)} kg</div>
+    </div>
+    <div class="capture-body" style="padding:10px 14px">
+      <div class="flex items-center justify-between">
+        <div class="capture-species">${c.especie || 'Sin especie'}</div>
+        <div style="font-size:12px;color:var(--white-muted)">${formatTime(c.hora)}</div>
+      </div>
+      <div class="capture-meta" style="margin:4px 0 0">
+        ${c.senuelo ? `<span class="capture-tag">🪝 ${c.senuelo}</span>` : ''}
+        ${c.longitud ? `<span class="capture-tag">📏 ${c.longitud}cm</span>` : ''}
+        ${c.tecnica ? `<span class="capture-tag">🎣 ${c.tecnica}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===== JORNADAS RENDER =====
+function renderJornadas() {
+  const c = document.getElementById('jornadas-content');
+  if (!STATE.jornadas.length) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Sin jornadas</div>
+        <div class="empty-sub">Crea tu primera jornada de pesca</div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn btn-gold" onclick="openModal('modal-nueva-jornada')">🌊 Nueva Jornada</button>
+      </div>`;
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="section-header">
+      <div class="section-title">Mis Jornadas</div>
+      <button class="btn btn-sm btn-gold" onclick="openModal('modal-nueva-jornada')">+ Nueva</button>
+    </div>
+    ${STATE.jornadas.slice().reverse().map(j => {
+      const caps = STATE.capturas.filter(c => c.jornadaId === j.id);
+      const isActive = j.id === STATE.jornadaActual;
+      return `
+      <div class="jornada-card ${isActive ? 'active-jornada' : ''}" onclick="selectJornada('${j.id}')">
+        <div class="jornada-icon">${isActive ? '✅' : '🌊'}</div>
+        <div class="jornada-info">
+          <div class="jornada-name">${j.nombre}</div>
+          <div class="jornada-meta">📍 ${j.lugar} · 📅 ${j.fecha} · ${j.clima}</div>
+          <div class="jornada-meta" style="margin-top:3px">🐟 ${caps.length} capturas · ⚖️ ${caps.reduce((s,c)=>s+(parseFloat(c.peso)||0),0).toFixed(1)}kg</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <div class="jornada-badge">${isActive ? 'ACTIVA' : caps.length}</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-ghost btn-icon" style="width:30px;height:30px;padding:0;font-size:14px" onclick="event.stopPropagation();openEditJornada('${j.id}')" title="Editar">✏️</button>
+            <button class="btn btn-sm btn-ghost btn-icon" style="width:30px;height:30px;padding:0;font-size:14px" onclick="event.stopPropagation();confirmDeleteJornada('${j.id}')" title="Eliminar">🗑️</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function selectJornada(id) {
+  STATE.jornadaActual = id;
+  DB.save('jornadaActual', id);
+  renderJornadas();
+  showToast('✅ Jornada seleccionada');
+}
+
+function finalizarJornada() {
+  STATE.jornadaActual = null;
+  DB.save('jornadaActual', null);
+  renderHome();
+  showToast('🏁 Jornada finalizada');
+}
+
+// ===== DELETE JORNADA =====
+function confirmDeleteJornada(id) {
+  const j = STATE.jornadas.find(j => j.id === id);
+  if (!j) return;
+  const caps = STATE.capturas.filter(c => c.jornadaId === id);
+  const msg = caps.length
+    ? `¿Eliminar "${j.nombre}"?\n\nEsta jornada tiene ${caps.length} captura(s) registrada(s). Al eliminarla, las capturas quedarán sin jornada asignada.`
+    : `¿Eliminar la jornada "${j.nombre}"?`;
+  if (!confirm(msg)) return;
+  STATE.jornadas = STATE.jornadas.filter(j => j.id !== id);
+  if (STATE.jornadaActual === id) {
+    STATE.jornadaActual = null;
+    DB.save('jornadaActual', null);
+  }
+  DB.save('jornadas', STATE.jornadas);
+  renderJornadas();
+  renderHome();
+  showToast('🗑️ Jornada eliminada');
+}
+
+// ===== EDIT JORNADA =====
+let editingJornadaId = null;
+let selectedWeatherEdit_val = '';
+
+function openEditJornada(id) {
+  const j = STATE.jornadas.find(j => j.id === id);
+  if (!j) return;
+  editingJornadaId = id;
+  selectedWeatherEdit_val = j.clima || '';
+
+  document.getElementById('ej-nombre').value = j.nombre || '';
+  document.getElementById('ej-lugar').value = j.lugar || '';
+  document.getElementById('ej-fecha').value = j.fecha || '';
+  document.getElementById('ej-obs').value = j.obs || '';
+
+  // Pre-select weather chip
+  document.querySelectorAll('#ej-weather-chips .weather-chip').forEach(chip => {
+    chip.classList.toggle('selected', chip.dataset.v === j.clima);
+  });
+
+  openModal('modal-editar-jornada');
+}
+
+function selectWeatherEdit(el) {
+  document.querySelectorAll('#ej-weather-chips .weather-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedWeatherEdit_val = el.dataset.v;
+}
+
+function guardarEdicionJornada() {
+  const nombre = document.getElementById('ej-nombre').value.trim();
+  const lugar = document.getElementById('ej-lugar').value.trim();
+  if (!nombre || !lugar) { showToast('⚠️ Completa nombre y lugar'); return; }
+
+  const idx = STATE.jornadas.findIndex(j => j.id === editingJornadaId);
+  if (idx === -1) return;
+  STATE.jornadas[idx] = {
+    ...STATE.jornadas[idx],
+    nombre,
+    lugar,
+    fecha: document.getElementById('ej-fecha').value || STATE.jornadas[idx].fecha,
+    clima: selectedWeatherEdit_val || STATE.jornadas[idx].clima,
+    obs: document.getElementById('ej-obs').value.trim()
+  };
+  DB.save('jornadas', STATE.jornadas);
+  closeModal('modal-editar-jornada');
+  renderJornadas();
+  renderHome();
+  showToast('✅ Jornada actualizada');
+}
+
+// ===== CREAR JORNADA =====
+function selectWeather(el) {
+  document.querySelectorAll('.weather-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  STATE.selectedWeather = el.dataset.v;
+}
+
+function crearJornada() {
+  const nombre = document.getElementById('j-nombre').value.trim();
+  const lugar = document.getElementById('j-lugar').value.trim();
+  const fecha = document.getElementById('j-fecha').value;
+  if (!nombre || !lugar) { showToast('⚠️ Completa nombre y lugar'); return; }
+
+  const j = {
+    id: Date.now().toString(),
+    nombre,
+    lugar,
+    fecha: fecha || new Date().toISOString().split('T')[0],
+    clima: STATE.selectedWeather || '☀️ Soleado',
+    obs: document.getElementById('j-obs').value.trim(),
+    creadoEn: new Date().toISOString()
+  };
+  STATE.jornadas.push(j);
+  STATE.jornadaActual = j.id;
+  DB.save('jornadas', STATE.jornadas);
+  DB.save('jornadaActual', j.id);
+
+  // Reset
+  document.getElementById('j-nombre').value = '';
+  document.getElementById('j-lugar').value = '';
+  document.getElementById('j-obs').value = '';
+  STATE.selectedWeather = '';
+  document.querySelectorAll('.weather-chip').forEach(c => c.classList.remove('selected'));
+
+  closeModal('modal-nueva-jornada');
+  renderHome();
+  showToast('🌊 Jornada creada exitosamente');
+}
+
+// ===== CAPTURAS RENDER =====
+function renderCapturas() {
+  const jornadaActiva = STATE.jornadas.find(j => j.id === STATE.jornadaActual);
+  const sub = document.getElementById('cap-header-sub');
+  if (sub) sub.textContent = jornadaActiva ? jornadaActiva.nombre.toUpperCase() : 'TODAS LAS CAPTURAS';
+
+  const caps = jornadaActiva
+    ? STATE.capturas.filter(c => c.jornadaId === jornadaActiva.id)
+    : STATE.capturas;
+
+  const maxPeso = caps.length ? Math.max(...caps.map(c => parseFloat(c.peso) || 0)) : 0;
+  const c = document.getElementById('capturas-content');
+
+  if (!caps.length) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🐟</div>
+        <div class="empty-title">Sin capturas${jornadaActiva ? ' en esta jornada' : ''}</div>
+        <div class="empty-sub">Registra tu primera captura</div>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="btn btn-gold" onclick="navTo('screen-nueva-captura')">📸 Nueva Captura</button>
+      </div>`;
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="section-header">
+      <div class="section-title">Capturas <span style="color:var(--white-muted);font-size:12px">(${caps.length})</span></div>
+      <button class="btn btn-sm btn-gold" onclick="navTo('screen-nueva-captura')">+ Captura</button>
+    </div>
+    ${caps.slice().reverse().map(cap => {
+      const isBest = parseFloat(cap.peso) === maxPeso && maxPeso > 0;
+      return `
+      <div class="capture-card" onclick="showCapturaDetail('${cap.id}')">
+        <div class="capture-img-wrap">
+          ${cap.foto ? `<img src="${cap.foto}" alt="">` : `<div class="capture-img-placeholder">🐟</div>`}
+          <div class="capture-badge">${parseFloat(cap.peso||0).toFixed(2)} kg</div>
+          ${isBest ? `<div class="capture-best-badge" style="display:block">🥇 MEJOR</div>` : ''}
+        </div>
+        <div class="capture-body">
+          <div class="capture-species">${cap.especie || 'Sin especie'}</div>
+          <div class="capture-meta">
+            ${cap.senuelo ? `<span class="capture-tag">🪝 ${cap.senuelo}</span>` : ''}
+            ${cap.longitud ? `<span class="capture-tag">📏 ${cap.longitud}cm</span>` : ''}
+            ${cap.tecnica ? `<span class="capture-tag">🎣 ${cap.tecnica}</span>` : ''}
+            ${cap.lat ? `<span class="capture-tag">📍 GPS</span>` : ''}
+          </div>
+          ${cap.comentarios ? `<div class="capture-comment">${cap.comentarios}</div>` : ''}
+        </div>
+        <div class="capture-footer">
+          <div class="capture-time">🕐 ${formatTime(cap.hora)} · ${cap.fecha}</div>
+          <div class="capture-actions">
+            <button class="btn btn-sm btn-ghost btn-icon" onclick="event.stopPropagation();openEditCaptura('${cap.id}')">✏️</button>
+            <button class="btn btn-sm btn-ghost btn-icon" onclick="event.stopPropagation();deleteCaptura('${cap.id}')">🗑️</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// ===== CAPTURA DETAIL =====
+function showCapturaDetail(id) {
+  const cap = STATE.capturas.find(c => c.id === id);
+  if (!cap) return;
+  const jornada = STATE.jornadas.find(j => j.id === cap.jornadaId);
+
+  document.getElementById('modal-captura-detail-body').innerHTML = `
+    ${cap.foto ? `<img src="${cap.foto}" style="width:100%;border-radius:var(--radius);margin-bottom:14px;max-height:300px;object-fit:cover">` : ''}
+    <div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);margin-bottom:8px">${cap.especie || 'Sin especie'}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="stat-hero gold-stat"><div class="stat-icon">⚖️</div><div class="stat-num">${parseFloat(cap.peso||0).toFixed(2)}</div><div class="stat-label">kg</div></div>
+      <div class="stat-hero"><div class="stat-icon">📏</div><div class="stat-num">${cap.longitud || '-'}</div><div class="stat-label">cm</div></div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div class="switch-row" style="padding:8px 0"><span class="text-sm text-muted">🪝 Señuelo</span><span style="font-size:13px">${cap.senuelo || '-'}</span></div>
+      <div class="switch-row" style="padding:8px 0"><span class="text-sm text-muted">🎣 Técnica</span><span style="font-size:13px">${cap.tecnica || '-'}</span></div>
+      <div class="switch-row" style="padding:8px 0"><span class="text-sm text-muted">🕐 Hora</span><span style="font-size:13px">${formatTime(cap.hora)}</span></div>
+      <div class="switch-row" style="padding:8px 0;border:none"><span class="text-sm text-muted">📅 Fecha</span><span style="font-size:13px">${cap.fecha}</span></div>
+      ${cap.lat ? `<div class="switch-row" style="padding:8px 0;border:none"><span class="text-sm text-muted">📍 GPS</span><a href="https://maps.google.com/?q=${cap.lat},${cap.lng}" target="_blank" style="font-size:12px;color:var(--cyan)">${cap.lat.toFixed(4)}, ${cap.lng.toFixed(4)}</a></div>` : ''}
+    </div>
+    ${cap.comentarios ? `<div class="card"><div style="font-size:13px;color:var(--white-dim);line-height:1.6">${cap.comentarios}</div></div>` : ''}
+    ${jornada ? `<div class="text-sm text-muted" style="margin-top:8px">Jornada: ${jornada.nombre}</div>` : ''}
+  `;
+
+  document.getElementById('modal-captura-detail-footer').innerHTML = `
+    <button class="btn btn-ghost" style="flex:1" onclick="shareCaptura('${id}')">📤 Compartir</button>
+    <button class="btn btn-blue btn-sm" onclick="closeModal('modal-captura-detail');openEditCaptura('${id}')">✏️ Editar</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteCaptura('${id}');closeModal('modal-captura-detail')">🗑️</button>
+  `;
+
+  openModal('modal-captura-detail');
+}
+
+// ===== NUEVA CAPTURA =====
+function renderNuevaCaptura() {
+  document.getElementById('bottom-nav').style.display = 'none';
+  STATE.nuevaCaptura = { foto: null, peso: '', longitud: '', especie: '', senuelo: '', tecnica: '', comentarios: '', lat: null, lng: null };
+
+  document.getElementById('nueva-captura-content').innerHTML = `
+    <div class="photo-pick-area" id="photo-pick-area" onclick="document.getElementById('file-captura-photo').click()">
+      <div class="photo-pick-placeholder" id="photo-placeholder">
+        <div class="photo-pick-icon">📸</div>
+        <div class="photo-pick-text">TOCA PARA FOTOGRAFIAR</div>
+        <div style="font-size:11px;color:var(--white-muted);margin-top:4px">Cámara o galería</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="input-group">
+        <label class="input-label">⚖️ Peso (kg)</label>
+        <input class="input-field" id="nc-peso" type="number" step="0.01" placeholder="0.00" inputmode="decimal">
+      </div>
+      <div class="input-group">
+        <label class="input-label">📏 Longitud (cm)</label>
+        <input class="input-field" id="nc-long" type="number" step="0.1" placeholder="0.0" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">🐟 Especie</label>
+      <select class="select-field" id="nc-especie">
+        <option value="Black Bass (Lobina Negra)" selected>Black Bass (Lobina Negra)</option>
+        <option>Trucha Arcoíris</option>
+        <option>Trucha Café</option>
+        <option>Trucha Brook</option>
+        <option>Carpa Común</option>
+        <option>Carpa Espejo</option>
+        <option>Bagre de Canal</option>
+        <option>Bagre Azul</option>
+        <option>Tilapia</option>
+        <option>Lobina Rayada</option>
+        <option>Lobina de Florida</option>
+        <option>Charal</option>
+        <option>Robalo</option>
+        <option>Mojarra</option>
+        <option>Dorado</option>
+        <option>Perca Amarilla</option>
+        <option>Walleye</option>
+        <option>Otra especie</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">🪝 Señuelo</label>
+      <select class="select-field" id="nc-senuelo" onchange="toggleCustomSenuelo(this,'nc-senuelo-custom')">
+        <option value="">Seleccionar señuelo...</option>
+        <optgroup label="── SOFT BAITS ──">
+          <option>Gusano de plástico (Worm)</option>
+          <option>Shad de plástico</option>
+          <option>Craw / Cangrejo plástico</option>
+          <option>Creature Bait</option>
+          <option>Tube Bait</option>
+          <option>Grub (Gusano con cola)</option>
+          <option>Swimbait suave</option>
+          <option>Ned Rig</option>
+          <option>Senko / Stick Bait</option>
+        </optgroup>
+        <optgroup label="── HARD BAITS ──">
+          <option>Crankbait (Superficial)</option>
+          <option>Crankbait (Medio)</option>
+          <option>Crankbait (Profundo)</option>
+          <option>Jerkbait</option>
+          <option>Swimbait rígido</option>
+          <option>Glide Bait</option>
+          <option>Lipless Crankbait</option>
+        </optgroup>
+        <optgroup label="── TOPWATER ──">
+          <option>Topwater Popper</option>
+          <option>Topwater Walker (Zara Spook)</option>
+          <option>Buzz Bait</option>
+          <option>Frog (Rana de plástico)</option>
+          <option>Prop Bait</option>
+        </optgroup>
+        <optgroup label="── JIGS ──">
+          <option>Football Jig</option>
+          <option>Flipping Jig</option>
+          <option>Swim Jig</option>
+          <option>Finesse Jig</option>
+          <option>Ned Jig / Mushroom Jig</option>
+          <option>Alabama Rig (Umbrella)</option>
+          <option>Jig de plomo genérico</option>
+        </optgroup>
+        <optgroup label="── SPINNERS ──">
+          <option>Spinnerbait</option>
+          <option>In-Line Spinner</option>
+          <option>Cuchara metálica</option>
+          <option>Blade Bait</option>
+        </optgroup>
+        <optgroup label="── MOSCA ──">
+          <option>Mosca seca (Dry Fly)</option>
+          <option>Ninfa (Nymph)</option>
+          <option>Streamer</option>
+          <option>Emerger</option>
+          <option>Woolly Bugger</option>
+        </optgroup>
+        <optgroup label="── NATURALES ──">
+          <option>Cebo vivo (pez)</option>
+          <option>Lombriz / Gusano natural</option>
+          <option>Camarón</option>
+          <option>Cangrejo natural</option>
+          <option>Rana natural</option>
+          <option>Insecto</option>
+        </optgroup>
+        <option value="__otro__">✏️ Otro — escribir nombre...</option>
+      </select>
+      <div class="senuelo-custom-wrap" id="nc-senuelo-custom">
+        <input class="input-field" id="nc-senuelo-texto" placeholder="Escribe el nombre del señuelo...">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">🎣 Técnica</label>
+      <div class="chip-toggle" id="tecnica-chips">
+        ${['Casting','Spinning','Flyfishing','Jigging','Trolling','Baitcasting','Natural'].map(t =>
+          `<div class="chip" onclick="selectChip(this,'tecnica')">${t}</div>`
+        ).join('')}
+      </div>
+    </div>
+
+    <div class="input-group" style="margin-top:12px">
+      <label class="input-label">💬 Comentarios</label>
+      <textarea class="textarea-field" id="nc-comment" placeholder="Descripción de la captura, condiciones, estrategia..."></textarea>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="flex items-center justify-between">
+        <div>
+          <div style="font-size:14px;font-weight:600">📍 Ubicación GPS</div>
+          <div id="gps-status" class="text-sm text-muted">Toca para obtener ubicación</div>
+        </div>
+        <button class="btn btn-sm btn-blue" onclick="getGPS()">GPS</button>
+      </div>
+    </div>
+
+    <button class="btn btn-gold btn-full" style="margin-bottom:24px" onclick="saveCaptura()">
+      ✅ REGISTRAR CAPTURA
+    </button>
+  `;
+
+  // Try GPS automatically
+  getGPS(true);
+}
+
+let selectedTecnica = '';
+function selectChip(el, group) {
+  document.querySelectorAll(`#${group}-chips .chip`).forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (group === 'tecnica') selectedTecnica = el.textContent;
+}
+
+function getGPS(silent = false) {
+  if (!navigator.geolocation) { if (!silent) showToast('GPS no disponible'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    STATE.nuevaCaptura.lat = pos.coords.latitude;
+    STATE.nuevaCaptura.lng = pos.coords.longitude;
+    const el = document.getElementById('gps-status');
+    if (el) el.textContent = `✅ ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+    if (!silent) showToast('📍 Ubicación obtenida');
+  }, err => {
+    if (!silent) showToast('⚠️ No se pudo obtener GPS');
+  }, { timeout: 8000 });
+}
+
+function handleCapturaPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    STATE.nuevaCaptura.foto = ev.target.result;
+    const area = document.getElementById('photo-pick-area');
+    const ph = document.getElementById('photo-placeholder');
+    if (area && ph) {
+      ph.style.display = 'none';
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      area.appendChild(img);
+    }
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function handleEditCapturaPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    editingCapturaNewFoto = ev.target.result;
+    const area = document.getElementById('ec-photo-area');
+    const placeholder = document.getElementById('ec-photo-placeholder');
+    if (!area) return;
+    const prev = area.querySelector('img');
+    if (prev) prev.remove();
+    placeholder.style.display = 'none';
+    const img = document.createElement('img');
+    img.src = ev.target.result;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px';
+    area.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+// ===== SEÑUELO PERSONALIZADO =====
+function toggleCustomSenuelo(select, wrapId) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  if (select.value === '__otro__') {
+    wrap.classList.add('visible');
+    const input = wrap.querySelector('input');
+    if (input) setTimeout(() => input.focus(), 100);
+  } else {
+    wrap.classList.remove('visible');
+  }
+}
+
+function getSenueloValue(selectId, textoId) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return '';
+  if (sel.value === '__otro__') {
+    const txt = document.getElementById(textoId);
+    return txt ? txt.value.trim() : '';
+  }
+  return sel.value;
+}
+
+function saveCaptura() {
+  const peso = document.getElementById('nc-peso')?.value;
+  const longitud = document.getElementById('nc-long')?.value;
+  const especie = document.getElementById('nc-especie')?.value;
+  const senuelo = getSenueloValue('nc-senuelo', 'nc-senuelo-texto');
+  const comentarios = document.getElementById('nc-comment')?.value;
+
+  if (!especie || !peso) { showToast('⚠️ Especie y peso son requeridos'); return; }
+
+  const now = new Date();
+  const captura = {
+    id: Date.now().toString(),
+    foto: STATE.nuevaCaptura.foto,
+    peso: parseFloat(peso) || 0,
+    longitud: parseFloat(longitud) || 0,
+    especie,
+    senuelo,
+    tecnica: selectedTecnica,
+    comentarios,
+    lat: STATE.nuevaCaptura.lat,
+    lng: STATE.nuevaCaptura.lng,
+    hora: now.toISOString(),
+    fecha: now.toISOString().split('T')[0],
+    jornadaId: STATE.jornadaActual
+  };
+
+  STATE.capturas.push(captura);
+  DB.save('capturas', STATE.capturas);
+
+  // Haptic
+  if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
+
+  showToast('🐟 ¡Captura registrada!');
+  selectedTecnica = '';
+  navBack();
+  renderHome();
+}
+
+function deleteCaptura(id) {
+  STATE.capturas = STATE.capturas.filter(c => c.id !== id);
+  DB.save('capturas', STATE.capturas);
+  renderCapturas();
+  renderHome();
+  showToast('🗑️ Captura eliminada');
+}
+
+// ===== EDIT CAPTURA =====
+let editingCapturaId = null;
+let editingCapturaNewFoto = null;
+let selectedTecnicaEdit = '';
+
+function openEditCaptura(id) {
+  const cap = STATE.capturas.find(c => c.id === id);
+  if (!cap) return;
+  editingCapturaId = id;
+  editingCapturaNewFoto = null;
+  selectedTecnicaEdit = cap.tecnica || '';
+
+  // Photo preview
+  const area = document.getElementById('ec-photo-area');
+  const placeholder = document.getElementById('ec-photo-placeholder');
+  // Remove previous img if any
+  const prev = area.querySelector('img');
+  if (prev) prev.remove();
+  if (cap.foto) {
+    placeholder.style.display = 'none';
+    const img = document.createElement('img');
+    img.src = cap.foto;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px';
+    area.appendChild(img);
+  } else {
+    placeholder.style.display = 'flex';
+  }
+
+  document.getElementById('ec-peso').value = cap.peso || '';
+  document.getElementById('ec-long').value = cap.longitud || '';
+
+  // Especie select
+  const espSel = document.getElementById('ec-especie');
+  espSel.value = cap.especie || '';
+  if (espSel.value !== cap.especie) {
+    // Species not in list — add it
+    const opt = document.createElement('option');
+    opt.value = cap.especie; opt.textContent = cap.especie;
+    espSel.appendChild(opt);
+    espSel.value = cap.especie;
+  }
+
+  // Señuelo select — si no coincide con ninguna opción, activa "Otro"
+  const senSel = document.getElementById('ec-senuelo');
+  const senCustomWrap = document.getElementById('ec-senuelo-custom');
+  const senCustomInput = document.getElementById('ec-senuelo-texto');
+  if (cap.senuelo) {
+    // Check if value exists in the select options
+    const exists = Array.from(senSel.options).some(o => o.value === cap.senuelo);
+    if (exists) {
+      senSel.value = cap.senuelo;
+      senCustomWrap.classList.remove('visible');
+    } else {
+      senSel.value = '__otro__';
+      senCustomWrap.classList.add('visible');
+      senCustomInput.value = cap.senuelo;
+    }
+  } else {
+    senSel.value = '';
+    senCustomWrap.classList.remove('visible');
+  }
+
+  // Técnica chips
+  document.querySelectorAll('#ec-tecnica-chips .chip').forEach(chip => {
+    chip.classList.toggle('active', chip.textContent === cap.tecnica);
+  });
+
+  document.getElementById('ec-comment').value = cap.comentarios || '';
+
+  openModal('modal-editar-captura');
+}
+
+function selectChipEdit(el) {
+  document.querySelectorAll('#ec-tecnica-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  selectedTecnicaEdit = el.textContent;
+}
+
+function guardarEdicionCaptura() {
+  const peso = document.getElementById('ec-peso').value;
+  const longitud = document.getElementById('ec-long').value;
+  const especie = document.getElementById('ec-especie').value;
+  if (!especie || !peso) { showToast('⚠️ Especie y peso son requeridos'); return; }
+
+  const idx = STATE.capturas.findIndex(c => c.id === editingCapturaId);
+  if (idx === -1) return;
+  STATE.capturas[idx] = {
+    ...STATE.capturas[idx],
+    foto: editingCapturaNewFoto !== null ? editingCapturaNewFoto : STATE.capturas[idx].foto,
+    peso: parseFloat(peso) || 0,
+    longitud: parseFloat(longitud) || 0,
+    especie,
+    senuelo: getSenueloValue('ec-senuelo', 'ec-senuelo-texto'),
+    tecnica: selectedTecnicaEdit,
+    comentarios: document.getElementById('ec-comment').value.trim()
+  };
+  DB.save('capturas', STATE.capturas);
+  if (navigator.vibrate) navigator.vibrate(60);
+  closeModal('modal-editar-captura');
+  renderCapturas();
+  renderHome();
+  showToast('✅ Captura actualizada');
+}
+
+// ===== TORNEO RENDER =====
+function renderTorneo() {
+  const jornadaActiva = STATE.jornadas.find(j => j.id === STATE.jornadaActual);
+  const caps = jornadaActiva
+    ? STATE.capturas.filter(c => c.jornadaId === jornadaActiva.id)
+    : STATE.capturas;
+
+  const sorted = [...caps].sort((a, b) => (parseFloat(b.peso) || 0) - (parseFloat(a.peso) || 0));
+  const totalPeso = caps.reduce((s, c) => s + (parseFloat(c.peso) || 0), 0);
+  const mejorCaptura = sorted[0];
+  const promedio = caps.length ? (totalPeso / caps.length).toFixed(2) : '0.00';
+
+  // Species stats
+  const speciesMap = {};
+  caps.forEach(c => {
+    const esp = c.especie || 'Sin especie';
+    if (!speciesMap[esp]) speciesMap[esp] = { count: 0, peso: 0 };
+    speciesMap[esp].count++;
+    speciesMap[esp].peso += parseFloat(c.peso) || 0;
+  });
+
+  const c = document.getElementById('torneo-content');
+  c.innerHTML = `
+    <!-- Trophy Header -->
+    <div class="card card-gold" style="text-align:center;padding:24px 16px;margin-bottom:16px;background:linear-gradient(135deg,rgba(201,162,39,0.12),rgba(13,20,37,1),rgba(10,36,64,0.3))">
+      <div style="font-size:48px;margin-bottom:8px" class="anim-float">🏆</div>
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold-light)" class="anim-glow">MODO TORNEO</div>
+      ${jornadaActiva ? `<div style="font-size:13px;color:var(--white-muted);margin-top:4px">${jornadaActiva.nombre}</div>` : '<div style="font-size:12px;color:var(--white-muted);margin-top:4px">Todas las jornadas</div>'}
+    </div>
+
+    <!-- Main Stats -->
+    <div class="hero-stats" style="margin-bottom:10px">
+      <div class="stat-hero gold-stat">
+        <div class="stat-icon">🐟</div>
+        <div class="stat-num">${caps.length}</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-hero">
+        <div class="stat-icon">⚖️</div>
+        <div class="stat-num">${totalPeso.toFixed(1)}</div>
+        <div class="stat-label">kg Acum.</div>
+      </div>
+    </div>
+    <div class="hero-stats" style="margin-bottom:16px">
+      <div class="stat-hero">
+        <div class="stat-icon">📊</div>
+        <div class="stat-num">${promedio}</div>
+        <div class="stat-label">Promedio</div>
+      </div>
+      <div class="stat-hero gold-stat">
+        <div class="stat-icon">🥇</div>
+        <div class="stat-num">${mejorCaptura ? parseFloat(mejorCaptura.peso).toFixed(2) : '0.00'}</div>
+        <div class="stat-label">Récord kg</div>
+      </div>
+    </div>
+
+    ${mejorCaptura ? `
+    <!-- Mejor Captura -->
+    <div class="section-header">
+      <div class="section-title">🥇 Mejor Captura</div>
+    </div>
+    <div class="card card-gold" style="margin-bottom:16px">
+      <div class="flex gap-12">
+        <div style="width:80px;height:80px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;background:var(--blue-deep);display:flex;align-items:center;justify-content:center;font-size:32px">
+          ${mejorCaptura.foto ? `<img src="${mejorCaptura.foto}" style="width:100%;height:100%;object-fit:cover">` : '🐟'}
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--gold-light)">${mejorCaptura.especie || 'Sin especie'}</div>
+          <div style="font-size:22px;font-family:var(--font-display);color:var(--white);margin:4px 0">${parseFloat(mejorCaptura.peso).toFixed(2)} <span style="font-size:13px;color:var(--white-muted)">kg</span></div>
+          <div style="font-size:12px;color:var(--white-muted)">${mejorCaptura.longitud}cm · ${formatTime(mejorCaptura.hora)}</div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Top 5 -->
+    ${sorted.length > 0 ? `
+    <div class="section-header">
+      <div class="section-title">🎯 Top 5 Capturas</div>
+    </div>
+    ${sorted.slice(0, 5).map((cap, i) => {
+      const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+      return `
+      <div class="ranking-item" onclick="showCapturaDetail('${cap.id}')">
+        <div class="rank-pos rank-${i < 3 ? i+1 : 'other'}">${i < 3 ? ['1','2','3'][i] : i+1}</div>
+        <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--blue-deep);display:flex;align-items:center;justify-content:center;font-size:20px">
+          ${cap.foto ? `<img src="${cap.foto}" style="width:100%;height:100%;object-fit:cover">` : '🐟'}
+        </div>
+        <div class="rank-info">
+          <div class="rank-name">${cap.especie || 'Sin especie'}</div>
+          <div class="rank-detail">📏 ${cap.longitud||'-'}cm · 🪝 ${cap.senuelo||'-'}</div>
+        </div>
+        <div class="rank-weight">${parseFloat(cap.peso).toFixed(2)}<span style="font-size:11px;color:var(--white-muted)">kg</span></div>
+      </div>`;
+    }).join('')}` : ''}
+
+    <!-- Stats por especie -->
+    ${Object.keys(speciesMap).length > 0 ? `
+    <div class="section-header" style="margin-top:8px">
+      <div class="section-title">📊 Por Especie</div>
+    </div>
+    ${Object.entries(speciesMap).sort((a,b)=>b[1].count-a[1].count).map(([esp, data]) => `
+      <div class="card" style="margin-bottom:8px">
+        <div class="flex items-center justify-between mb-8">
+          <div style="font-size:14px;font-weight:600">${esp}</div>
+          <div style="font-family:var(--font-display);font-size:13px;color:var(--gold-light)">${data.count} cap.</div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:${Math.min(100,(data.count/caps.length)*100)}%"></div>
+        </div>
+        <div style="font-size:12px;color:var(--white-muted)">Total: ${data.peso.toFixed(2)} kg · Prom: ${(data.peso/data.count).toFixed(2)} kg</div>
+      </div>`).join('')}` : ''}
+
+    <!-- Actions -->
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <button class="btn btn-gold" onclick="openModal('modal-poster')">🎨 Generar Poster</button>
+      <button class="btn btn-blue" onclick="shareWhatsApp()">💬 WhatsApp</button>
+    </div>
+
+    ${caps.length === 0 ? `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">Sin capturas en torneo</div><div class="empty-sub">Registra capturas para ver estadísticas</div></div>` : ''}
+  `;
+}
+
+// ===== PERFIL =====
+function renderPerfil() {
+  const p = STATE.perfil;
+  document.getElementById('perfil-content').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="perfil-avatar-preview">
+          ${p.foto ? `<img src="${p.foto}">` : '🎣'}
+        </div>
+        <div class="profile-avatar-edit" onclick="document.getElementById('file-perfil-photo').click()">✏️</div>
+      </div>
+      <div class="profile-name">${p.nombre || 'Tu Nombre'}</div>
+      <div class="profile-alias">${p.alias ? '@' + p.alias : 'alias'}</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Datos del Pescador</div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Nombre completo</label>
+      <input class="input-field" id="p-nombre" value="${p.nombre || ''}" placeholder="Tu nombre">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Alias / Apodo</label>
+      <input class="input-field" id="p-alias" value="${p.alias || ''}" placeholder="@tuAlias">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Club de Pesca</label>
+      <input class="input-field" id="p-club" value="${p.club || ''}" placeholder="Nombre del club">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Estado / Ciudad</label>
+      <input class="input-field" id="p-estado" value="${p.estado || ''}" placeholder="Estado o ciudad">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Tipo de Pesca Favorita</label>
+      <select class="select-field" id="p-tipo">
+        <option value="" ${!p.tipo?'selected':''}>Seleccionar...</option>
+        ${['Black Bass','Trucha','Carpa','Pesca de mar','Mosca','Jigging','Casting','Spinning'].map(t =>
+          `<option ${p.tipo===t?'selected':''}>${t}</option>`
+        ).join('')}
+      </select>
+    </div>
+
+    <button class="btn btn-gold btn-full" style="margin:8px 0 4px" onclick="savePerfil()">💾 GUARDAR PERFIL</button>
+
+    <div class="divider"></div>
+    <div class="section-header">
+      <div class="section-title">Mis Estadísticas</div>
+    </div>
+    <div class="hero-stats" style="margin-bottom:16px">
+      <div class="stat-hero gold-stat"><div class="stat-icon">📋</div><div class="stat-num">${STATE.jornadas.length}</div><div class="stat-label">Jornadas</div></div>
+      <div class="stat-hero"><div class="stat-icon">🐟</div><div class="stat-num">${STATE.capturas.length}</div><div class="stat-label">Capturas</div></div>
+    </div>
+    <div class="hero-stats" style="margin-bottom:16px">
+      <div class="stat-hero"><div class="stat-icon">⚖️</div><div class="stat-num">${calcMejorPeso()}</div><div class="stat-label">Récord kg</div></div>
+      <div class="stat-hero"><div class="stat-icon">📏</div><div class="stat-num">${calcMejorLong()}</div><div class="stat-label">Récord cm</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-header"><div class="section-title">Configuración App</div></div>
+    <div class="card">
+      <div class="switch-row">
+        <span class="switch-label">🔊 Sonidos</span>
+        <div class="switch" id="sw-sounds" onclick="toggleSwitch(this)"></div>
+      </div>
+      <div class="switch-row">
+        <span class="switch-label">📳 Vibración Háptica</span>
+        <div class="switch on" id="sw-haptic" onclick="toggleSwitch(this)"></div>
+      </div>
+      <div class="switch-row" style="border:none">
+        <span class="switch-label">📍 GPS Automático</span>
+        <div class="switch on" id="sw-gps" onclick="toggleSwitch(this)"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <button class="btn btn-outline" onclick="exportData()">📤 Exportar Datos</button>
+      <button class="btn btn-ghost" onclick="importData()">📥 Importar</button>
+    </div>
+    <button class="btn btn-danger btn-full" style="margin-bottom:24px" onclick="confirmReset()">⚠️ Borrar Todo</button>
+  `;
+}
+
+function savePerfil() {
+  STATE.perfil = {
+    ...STATE.perfil,
+    nombre: document.getElementById('p-nombre')?.value || STATE.perfil.nombre,
+    alias: document.getElementById('p-alias')?.value || STATE.perfil.alias,
+    club: document.getElementById('p-club')?.value || STATE.perfil.club,
+    estado: document.getElementById('p-estado')?.value || STATE.perfil.estado,
+    tipo: document.getElementById('p-tipo')?.value || STATE.perfil.tipo
+  };
+  DB.save('perfil', STATE.perfil);
+  if (navigator.vibrate) navigator.vibrate(60);
+  showToast('💾 Perfil guardado');
+  renderHome();
+}
+
+function handlePerfilPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    STATE.perfil.foto = ev.target.result;
+    DB.save('perfil', STATE.perfil);
+    const prev = document.getElementById('perfil-avatar-preview');
+    if (prev) prev.innerHTML = `<img src="${ev.target.result}">`;
+    renderHome();
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function toggleSwitch(el) {
+  el.classList.toggle('on');
+}
+
+// ===== POSTER GENERATOR =====
+function generatePoster() {
+  const canvas = document.getElementById('poster-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#020509');
+  bgGrad.addColorStop(0.3, '#061220');
+  bgGrad.addColorStop(0.7, '#040d1a');
+  bgGrad.addColorStop(1, '#010308');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid pattern
+  ctx.strokeStyle = 'rgba(26,107,181,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // Gold glow top
+  const goldGlow = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, W*0.8);
+  goldGlow.addColorStop(0, 'rgba(201,162,39,0.15)');
+  goldGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = goldGlow;
+  ctx.fillRect(0, 0, W, H*0.4);
+
+  // Blue glow bottom
+  const blueGlow = ctx.createRadialGradient(W/2, H, 0, W/2, H, W*0.8);
+  blueGlow.addColorStop(0, 'rgba(26,107,181,0.1)');
+  blueGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = blueGlow;
+  ctx.fillRect(0, H*0.6, W, H*0.4);
+
+  // Top border
+  ctx.fillStyle = '#c9a227';
+  ctx.fillRect(0, 0, W, 3);
+
+  // Logo area
+  ctx.font = 'bold 50px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🎣', W/2, 80);
+
+  // Club name
+  ctx.font = 'bold 20px Orbitron, monospace';
+  ctx.fillStyle = '#c9a227';
+  ctx.textAlign = 'center';
+  ctx.shadowColor = 'rgba(201,162,39,0.8)';
+  ctx.shadowBlur = 15;
+  ctx.fillText('AMIGOS POR LA PESCA', W/2, 120);
+  ctx.shadowBlur = 0;
+
+  ctx.font = '13px Rajdhani, sans-serif';
+  ctx.fillStyle = 'rgba(240,244,255,0.4)';
+  ctx.letterSpacing = '4px';
+  ctx.fillText('BITÁCORA PRO · TORNEO DEPORTIVO', W/2, 142);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(201,162,39,0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40, 160); ctx.lineTo(W-40, 160);
+  ctx.stroke();
+
+  // Get best capture
+  const jornadaActiva = STATE.jornadas.find(j => j.id === STATE.jornadaActual);
+  const caps = jornadaActiva
+    ? STATE.capturas.filter(c => c.jornadaId === jornadaActiva.id)
+    : STATE.capturas;
+  const sorted = [...caps].sort((a,b) => (parseFloat(b.peso)||0) - (parseFloat(a.peso)||0));
+  const best = sorted[0];
+
+  if (best && best.foto) {
+    // Draw photo
+    const img = new Image();
+    img.onload = () => {
+      // Photo area
+      const imgY = 175, imgH = 280;
+      ctx.save();
+      ctx.beginPath();
+      const r = 12;
+      ctx.moveTo(30+r, imgY);
+      ctx.arcTo(W-30, imgY, W-30, imgY+imgH, r);
+      ctx.arcTo(W-30, imgY+imgH, 30, imgY+imgH, r);
+      ctx.arcTo(30, imgY+imgH, 30, imgY, r);
+      ctx.arcTo(30, imgY, W-30, imgY, r);
+      ctx.closePath();
+      ctx.clip();
+
+      // Fit image
+      const iAspect = img.width / img.height;
+      const cAspect = (W-60) / imgH;
+      let dw, dh, dx, dy;
+      if (iAspect > cAspect) {
+        dh = imgH; dw = dh * iAspect;
+        dx = 30 - (dw - (W-60)) / 2; dy = imgY;
+      } else {
+        dw = W-60; dh = dw / iAspect;
+        dx = 30; dy = imgY - (dh - imgH) / 2;
+      }
+      ctx.drawImage(img, dx, dy, dw, dh);
+      ctx.restore();
+
+      // Photo border
+      ctx.strokeStyle = 'rgba(201,162,39,0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(30+r, imgY);
+      ctx.arcTo(W-30, imgY, W-30, imgY+imgH, r);
+      ctx.arcTo(W-30, imgY+imgH, 30, imgY+imgH, r);
+      ctx.arcTo(30, imgY+imgH, 30, imgY, r);
+      ctx.arcTo(30, imgY, W-30, imgY, r);
+      ctx.closePath();
+      ctx.stroke();
+
+      // BEST CATCH badge
+      ctx.fillStyle = '#c9a227';
+      ctx.beginPath();
+      ctx.roundRect(40, imgY+10, 120, 28, 14);
+      ctx.fill();
+      ctx.font = 'bold 12px Orbitron, monospace';
+      ctx.fillStyle = '#040810';
+      ctx.fillText('🥇 BEST CATCH', 100, imgY+28);
+
+      drawPosterStats(ctx, W, H, best, caps, sorted, jornadaActiva);
+    };
+    img.src = best.foto;
+  } else {
+    drawPosterStats(ctx, W, H, best, caps, sorted, jornadaActiva);
+  }
+}
+
+function drawPosterStats(ctx, W, H, best, caps, sorted, jornada) {
+  const perfil = STATE.perfil;
+  let y = best ? 480 : 200;
+
+  // Pescador name
+  if (perfil.nombre) {
+    ctx.font = 'bold 28px Orbitron, monospace';
+    ctx.fillStyle = '#f0f4ff';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(26,107,181,0.8)';
+    ctx.shadowBlur = 20;
+    ctx.fillText(perfil.nombre.toUpperCase(), W/2, y);
+    ctx.shadowBlur = 0;
+    y += 32;
+  }
+
+  if (perfil.club) {
+    ctx.font = '14px Rajdhani, sans-serif';
+    ctx.fillStyle = 'rgba(201,162,39,0.8)';
+    ctx.textAlign = 'center';
+    ctx.fillText('⚓ ' + perfil.club.toUpperCase(), W/2, y);
+    y += 30;
+  }
+
+  // Stats boxes
+  const totalPeso = caps.reduce((s, c) => s + (parseFloat(c.peso)||0), 0);
+  const stats = [
+    { icon: '🐟', val: caps.length.toString(), label: 'CAPTURAS' },
+    { icon: '⚖️', val: (best ? parseFloat(best.peso).toFixed(2) : '0.00') + 'kg', label: 'RÉCORD' },
+    { icon: '📊', val: totalPeso.toFixed(1) + 'kg', label: 'TOTAL' }
+  ];
+
+  const boxW = (W - 60) / 3;
+  y += 10;
+  stats.forEach((s, i) => {
+    const bx = 30 + i * boxW;
+    // Box bg
+    const bGrad = ctx.createLinearGradient(bx, y, bx, y+80);
+    bGrad.addColorStop(0, 'rgba(13,20,37,0.9)');
+    bGrad.addColorStop(1, 'rgba(10,36,64,0.5)');
+    ctx.fillStyle = bGrad;
+    ctx.beginPath(); ctx.roundRect(bx+2, y, boxW-4, 80, 10); ctx.fill();
+    ctx.strokeStyle = 'rgba(201,162,39,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.font = '22px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.icon, bx + boxW/2, y + 30);
+    ctx.font = 'bold 16px Orbitron, monospace';
+    ctx.fillStyle = '#c9a227';
+    ctx.shadowColor = 'rgba(201,162,39,0.6)';
+    ctx.shadowBlur = 8;
+    ctx.fillText(s.val, bx + boxW/2, y + 52);
+    ctx.shadowBlur = 0;
+    ctx.font = '10px Rajdhani, sans-serif';
+    ctx.fillStyle = 'rgba(240,244,255,0.4)';
+    ctx.fillText(s.label, bx + boxW/2, y + 68);
+  });
+  y += 100;
+
+  // Best capture details
+  if (best) {
+    ctx.font = '14px Rajdhani, sans-serif';
+    ctx.fillStyle = 'rgba(240,244,255,0.6)';
+    ctx.textAlign = 'center';
+    ctx.fillText(`🐟 ${best.especie || 'Sin especie'} · 📏 ${best.longitud||'-'}cm · 🪝 ${best.senuelo||'-'}`, W/2, y);
+    y += 30;
+  }
+
+  // Jornada info
+  if (jornada) {
+    ctx.font = '13px Rajdhani, sans-serif';
+    ctx.fillStyle = 'rgba(240,244,255,0.4)';
+    ctx.textAlign = 'center';
+    ctx.fillText(`📍 ${jornada.lugar} · 📅 ${jornada.fecha}`, W/2, y);
+    y += 24;
+  }
+
+  // Top 3 mini ranking
+  if (sorted.length > 1) {
+    y += 10;
+    ctx.strokeStyle = 'rgba(201,162,39,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W-40, y); ctx.stroke();
+    y += 20;
+
+    ctx.font = 'bold 12px Orbitron, monospace';
+    ctx.fillStyle = '#c9a227';
+    ctx.textAlign = 'center';
+    ctx.fillText('TOP CAPTURAS', W/2, y);
+    y += 20;
+
+    sorted.slice(0, 3).forEach((cap, i) => {
+      const medals = ['🥇','🥈','🥉'];
+      ctx.font = '14px Rajdhani, sans-serif';
+      ctx.fillStyle = 'rgba(240,244,255,0.7)';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${medals[i]} ${cap.especie||'?'} — ${parseFloat(cap.peso).toFixed(2)}kg`, W/2, y);
+      y += 22;
+    });
+  }
+
+  // Bottom watermark
+  y = H - 60;
+  ctx.strokeStyle = 'rgba(201,162,39,0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W-40, y); ctx.stroke();
+
+  ctx.font = '11px Rajdhani, sans-serif';
+  ctx.fillStyle = 'rgba(240,244,255,0.25)';
+  ctx.textAlign = 'center';
+  ctx.fillText('Generado con BITÁCORA PRO · Amigos por la Pesca', W/2, y+20);
+  ctx.fillText(new Date().toLocaleDateString('es-MX', { year:'numeric', month:'long', day:'numeric'}), W/2, y+36);
+
+  // Bottom gold border
+  ctx.fillStyle = '#c9a227';
+  ctx.fillRect(0, H-3, W, 3);
+}
+
+function downloadPoster() {
+  const canvas = document.getElementById('poster-canvas');
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = `BitacoraPRO_Poster_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('⬇️ Poster descargado');
+}
+
+async function sharePoster() {
+  const canvas = document.getElementById('poster-canvas');
+  if (!canvas) return;
+  try {
+    canvas.toBlob(async blob => {
+      if (!blob) return;
+      const file = new File([blob], 'poster-bitacora-pro.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Mi Captura — Bitácora PRO', text: 'Mira mis resultados de pesca 🎣🏆' });
+        showToast('📤 Compartido exitosamente');
+      } else {
+        downloadPoster();
+      }
+    });
+  } catch(e) {
+    downloadPoster();
+  }
+}
+
+function shareWhatsApp() {
+  const perfil = STATE.perfil;
+  const jornadaActiva = STATE.jornadas.find(j => j.id === STATE.jornadaActual);
+  const caps = jornadaActiva ? STATE.capturas.filter(c => c.jornadaId === jornadaActiva.id) : STATE.capturas;
+  const totalPeso = caps.reduce((s,c) => s+(parseFloat(c.peso)||0), 0);
+  const best = caps.length ? caps.reduce((b,c) => (!b||parseFloat(c.peso)>parseFloat(b.peso))?c:b, null) : null;
+
+  const msg = `🎣 *BITÁCORA PRO — Amigos por la Pesca*\n\n` +
+    `👤 *${perfil.nombre || 'Pescador'}*${perfil.club ? ` | ${perfil.club}` : ''}\n` +
+    (jornadaActiva ? `🌊 *Jornada:* ${jornadaActiva.nombre}\n📍 ${jornadaActiva.lugar}\n` : '') +
+    `\n🐟 *Capturas:* ${caps.length}\n` +
+    `⚖️ *Total:* ${totalPeso.toFixed(2)} kg\n` +
+    (best ? `🥇 *Mejor:* ${best.especie} — ${parseFloat(best.peso).toFixed(2)} kg\n` : '') +
+    `\n_Registrado con Bitácora PRO_ 🏆`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function shareCaptura(id) {
+  const cap = STATE.capturas.find(c => c.id === id);
+  if (!cap) return;
+  const perfil = STATE.perfil;
+  const msg = `🎣 *¡Captura registrada!*\n\n🐟 *${cap.especie||'Pez'}*\n⚖️ ${parseFloat(cap.peso).toFixed(2)} kg · 📏 ${cap.longitud||'-'} cm\n🪝 ${cap.senuelo||'-'} · 🎣 ${cap.tecnica||'-'}\n🕐 ${formatTime(cap.hora)} — ${cap.fecha}\n\n👤 ${perfil.nombre||'Pescador'} | Bitácora PRO 🏆`;
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ===== DATA EXPORT/IMPORT =====
+function exportData() {
+  const data = {
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    perfil: STATE.perfil,
+    jornadas: STATE.jornadas,
+    capturas: STATE.capturas.map(c => ({ ...c, foto: c.foto ? '[imagen]' : null })) // omit base64 for size
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `bitacora-pro-backup-${Date.now()}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 Datos exportados');
+}
+
+function importData() {
+  showToast('📥 Función próximamente disponible');
+}
+
+function confirmReset() {
+  if (confirm('⚠️ ¿Borrar todos los datos? Esta acción no se puede deshacer.')) {
+    localStorage.clear();
+    STATE.jornadas = [];
+    STATE.capturas = [];
+    STATE.perfil = {};
+    STATE.jornadaActual = null;
+    renderHome();
+    showToast('🗑️ Datos borrados');
+  }
+}
+
+// ===== UTILS =====
+function formatTime(iso) {
+  if (!iso) return '--:--';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  } catch { return iso; }
+}
+
+// ===== SERVICE WORKER =====
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+
+  navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+    .then(reg => {
+      console.log('[App] SW registrado. Scope:', reg.scope);
+
+      // Detectar nueva versión disponible
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Hay actualización disponible
+            showToast('🔄 Actualización disponible — recarga para aplicar');
+          }
+        });
+      });
+    })
+    .catch(err => console.warn('[App] SW no registrado:', err));
+
+  // Escuchar cuando el SW toma control (primera instalación)
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    console.log('[App] SW tomó el control — app lista para offline');
+  });
+}
+
+// ===== PWA INSTALL =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => showToast('📲 Toca ⊕ para instalar la app'), 5000);
+});
+
+// ===== START =====
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
